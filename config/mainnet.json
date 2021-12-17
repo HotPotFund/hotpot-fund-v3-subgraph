@@ -1,0 +1,16 @@
+{
+  "network": "mainnet",
+  "blockAmountPerMinute": 5,
+  "ctrlAddress": "0xb440bd39870a94ba1131c6182ca5fba589d5449e",
+  "ctrlCreatedBlock": 13808441,
+  "factoryAddress": "0xe9cf1fd8d9d804ef3ce6754776144b86c93efb8d",
+  "factoryCreatedBlock": 13808694,
+  "startProcessBlock": 13808694,
+  "hptAddress": "0x615d8e5e1344b36a95f6ecd8e6cda020e84dc25b",
+  "wethAddress": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+  "usdcEth03Pool": "0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8",
+  "daiAddress": "0x6b175474e89094c44da98b954eedeac495271d0f",
+  "usdcAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+  "usdtAddress": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+  "tusdAddress": "0x0000000000085d4780b73119b644ae5ecd22b376"
+}

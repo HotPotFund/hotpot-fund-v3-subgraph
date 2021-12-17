@@ -1,0 +1,497 @@
+type Bundle @entity {
+    id: ID!
+
+    ethPriceUSD: BigDecimal!
+    timestamp: BigInt!
+}
+
+type Token @entity {
+    # token address
+    id: ID!
+
+    symbol: String!
+    name: String!
+    decimals: BigInt!
+    totalSupply: BigInt!
+
+    isVerified: Boolean!
+
+    fundIncome: BigDecimal!
+    setHarvestPathTx: SetHarvestPathTx
+}
+
+# 所有基金汇总数据
+type FundSummary @entity{
+    id: ID!
+    length: BigInt!
+    funds: [Fund!]
+
+    #美元值
+    totalInvestmentUSD: BigDecimal!
+    totalAssetsUSD: BigDecimal!
+    totalProtocolFeesUSD: BigDecimal!
+
+    #总的赚得的fees
+    totalFees: BigDecimal!
+    #待领取的fees
+    totalPendingFees: BigDecimal!
+    # 已经领取的fees
+    totalWithdrewFees: BigDecimal!
+}
+
+type Fund @entity {
+    # fund contract address
+    id: ID!
+    summary: FundSummary!
+
+    # HotPotFundERC20 info
+    symbol: String!
+    name: String!
+    decimals: BigInt!
+
+    # 基金经理
+    manager: Manager!
+    # 基金描述
+    descriptor: String!
+    # 基金本币
+    fundToken: Token!
+    # 基金余额
+    balance: BigDecimal!
+    # 锁定期
+    lockPeriod: BigInt!
+    baseLine: BigDecimal!
+    managerFee: BigDecimal!
+    # 基金存入截止时间
+    deadline: BigInt!
+
+    # 投入的交易对池子列表
+    pools: [Pool!] @derivedFrom(field: "fund")
+    poolsLength: BigInt!
+
+    paths: [Path!] @derivedFrom(field: "fund")
+
+    # 总的基金份额
+    totalSupply: BigInt!
+    # 当前总的投入本金
+    totalInvestment: BigDecimal!
+    # 总的资产
+    totalAssets: BigDecimal!
+
+    # 累计投入值
+    totalDepositedAmount: BigDecimal!
+    # 累计取出值
+    totalWithdrewAmount: BigDecimal!
+
+    # 美元值
+    totalInvestmentUSD: BigDecimal!
+    totalAssetsUSD: BigDecimal!
+    totalDepositedAmountUSD: BigDecimal!
+    totalWithdrewAmountUSD:  BigDecimal!
+
+    # 最新结算价格
+    lastedSettlementPrice: BigDecimal!
+    # 总的赚得的fees
+    totalFees: BigDecimal!
+    # 待领取的fees
+    totalPendingFees: BigDecimal!
+    # 已经领取的fees
+    totalWithdrewFees: BigDecimal!
+
+    # 累计协议fees(20%)
+    totalProtocolFees: BigDecimal!
+    totalProtocolFeesUSD: BigDecimal!
+}
+
+type Path @entity {
+    # fund address + token address
+    id: ID!
+    fund: Fund!
+
+    distToken: Token!
+    path: Bytes!
+
+    pathPools:[PathPool!]
+}
+
+type PathPool @entity {
+    # fund/controller address + token address + index
+    id: ID!
+
+    tokenIn: Token!
+    tokenOut: Token!
+    fee: Int!
+
+    address: Bytes!
+}
+
+type Manager @entity {
+    # manager address
+    id: ID!
+
+    length: BigInt!
+    funds: [Fund!]! @derivedFrom(field: "manager")
+
+    # 美元值
+    totalInvestmentUSD: BigDecimal!
+    totalAssetsUSD: BigDecimal!
+
+    # 总的赚得的fees
+    totalFees: BigDecimal!
+    # 待领取的fees
+    totalPendingFees: BigDecimal!
+    # 已经领取的fees
+    totalWithdrewFees: BigDecimal!
+}
+
+
+type InvestorSummary @entity {
+    #investor address
+    id: ID!
+
+    # 美元值
+    totalInvestmentUSD: BigDecimal!
+    totalProtocolFeesUSD: BigDecimal!
+
+    positions: [Investor!]! @derivedFrom(field: "summary")
+
+    created_timestamp: BigInt!
+    created_block: BigInt!
+}
+
+type Investor @entity {
+    # fund address + "-" + investor address
+    id: ID!
+    # investor address
+    summary: InvestorSummary!
+    fund: Fund!
+
+    # 我的份额
+    share: BigInt!
+    # 抵押挖矿份额
+    stakingShare: BigInt!
+    # 当前本金
+    totalInvestment: BigDecimal!
+    # 最新存入时间
+    lastDepositTime: BigInt!
+
+    # 累计投入值
+    totalDepositedAmount: BigDecimal!
+    # 累计取出值
+    totalWithdrewAmount: BigDecimal!
+
+    # 美元值
+    totalInvestmentUSD: BigDecimal!
+    totalDepositedAmountUSD: BigDecimal!
+    totalWithdrewAmountUSD: BigDecimal!
+
+    # 自结算价格
+    lastedSettlementPrice: BigDecimal!
+    # 总的赚得的fees
+    totalFees: BigDecimal!
+    # 待领取的fees
+    totalPendingFees: BigDecimal!
+    # 已经领取的fees
+    totalWithdrewFees: BigDecimal!
+
+    # 累计协议fees(20%)
+    totalProtocolFees: BigDecimal!
+    totalProtocolFeesUSD: BigDecimal!
+}
+
+type Pool @entity {
+    # fund address + "-" + poolIndex
+    id: ID!
+    fund: Fund!
+
+    address: Bytes!
+    token0: Token!
+    token1: Token!
+    fee: BigInt!
+
+    positions: [Position!]! @derivedFrom(field: "pool")
+    positionsLength: BigInt!
+
+    assetAmount: BigDecimal!
+    assetShare: BigDecimal!
+#    #投入数量
+#    token0Amount: BigInt!
+#    token1Amount: BigInt!
+    #美元值
+    assetAmountUSD: BigDecimal!
+}
+
+type Position @entity {
+    # fund address + "-" + poolIndex + "-" + positionIndex
+    id: ID!
+    pool: Pool!
+    fund: Fund!
+
+    isEmpty: Boolean!
+    tickLower: BigInt!
+    tickUpper: BigInt!
+
+    #池子代币数量
+    amount0: BigDecimal!
+    amount1: BigDecimal!
+    amount: BigDecimal!
+    amountUSD: BigDecimal!
+    fees0: BigDecimal!
+    fees1: BigDecimal!
+    fees: BigDecimal!
+    feesUSD: BigDecimal!
+
+    feeGrowthInside0LastX128: BigInt!,
+    feeGrowthInside1LastX128: BigInt!,
+    liquidity: BigInt!,
+    positionKey: Bytes!
+
+    assetAmount: BigDecimal!
+    assetShare: BigDecimal!
+    #美元值
+    assetAmountUSD: BigDecimal!
+}
+
+type HarvestSummary @entity {
+    id: ID!
+
+    txCount: BigInt!
+    totalBurned: BigDecimal!
+    totalAmountUSD: BigDecimal!
+}
+
+type Transaction @entity {
+    id: ID! # txn hash
+    fund: Fund
+
+    timestamp: BigInt!
+    blockNumber:BigInt!
+    from: Bytes!
+    gasFee: BigDecimal!
+    gasPrice: BigDecimal!
+    gasLimit: BigInt!
+
+    deposits: [DepositTx!]
+    withdraws: [WithdrawTx!]
+
+    setDeadlines: [SetDeadlineTx!]
+    setPaths: [SetPathTx!]
+    inits: [InitTx!]
+    adds: [AddTx!]
+    subs: [SubTx!]
+    moves: [MoveTx!]
+
+    setHarvestPaths: [SetHarvestPathTx!]
+    harvests: [HarvestTx!]
+}
+
+type SetHarvestPathTx @entity {
+    # transaction hash + "-" + index in Transaction array
+    id: ID!
+    transaction: Transaction!
+
+    distToken: Token!
+    path: Bytes!
+
+    pathPools: [PathPool!]
+}
+
+type HarvestTx @entity {
+    # transaction hash + "-" + index in Transaction array
+    id: ID!
+    transaction: Transaction!
+
+    token: Token!
+    amount: BigDecimal!
+    burned: BigDecimal!
+    amountUSD: BigDecimal!
+}
+
+type SetDeadlineTx @entity {
+    # transaction hash + "-" + index in Transaction array
+    id: ID!
+    transaction: Transaction!
+
+    fund: Fund!
+    deadline: BigInt!
+}
+
+type SetPathTx @entity {
+    # transaction hash + "-" + index in Transaction array
+    id: ID!
+    transaction: Transaction!
+
+    fund: Fund!
+    distToken: Token!
+    path: Path!
+}
+
+type InitTx @entity {
+    # transaction hash + "-" + index in Transaction array
+    id: ID!
+    transaction: Transaction!
+
+    fund: Fund!
+    token0: Token!
+    token1: Token!
+    fee: BigInt!
+    tickLower: BigInt!
+    tickUpper: BigInt!
+    amount: BigDecimal!
+    amountUSD: BigDecimal!
+
+    position: Position!
+}
+
+type AddTx @entity {
+    # transaction hash + "-" + index in Transaction array
+    id: ID!
+    transaction: Transaction!
+
+    fund: Fund!
+    poolIndex: BigInt!
+    positionIndex: BigInt!
+    amount: BigDecimal!
+    amountUSD: BigDecimal!
+    collect: Boolean!
+
+    position: Position!
+}
+
+type SubTx @entity {
+    # transaction hash + "-" + index in Transaction array
+    id: ID!
+    transaction: Transaction!
+
+    fund: Fund!
+    poolIndex: BigInt!
+    positionIndex: BigInt!
+    proportion: BigDecimal!
+
+    amount: BigDecimal!
+    amountUSD: BigDecimal!
+
+    position: Position!
+}
+
+type MoveTx @entity {
+    # transaction hash + "-" + index in mints Transaction array
+    id: ID!
+    transaction: Transaction!
+
+    fund: Fund!
+    poolIndex: BigInt!
+    subIndex: BigInt!
+    addIndex: BigInt!
+    proportion: BigDecimal!
+
+    amount: BigDecimal!
+    amountUSD: BigDecimal!
+
+    subPosition: Position!
+    addPosition: Position!
+}
+
+type DepositTx @entity {
+    # transaction hash + "-" + index in mints Transaction array
+    id: ID!
+    transaction: Transaction!
+
+    fund: Fund!
+    owner: Bytes!
+    amount: BigDecimal!
+    amountUSD: BigDecimal!
+    share: BigInt!
+
+    investor: Investor!
+}
+
+type WithdrawTx @entity {
+    # transaction hash + "-" + index in mints Transaction array
+    id: ID!
+    transaction: Transaction!
+
+    fund: Fund!
+    owner: Bytes!
+    amount: BigDecimal!
+    amountUSD: BigDecimal!
+    protocolFees: BigDecimal!
+    protocolFeesUSD: BigDecimal!
+    share: BigInt!
+
+    investor: Investor!
+}
+
+
+type FundDayData @entity{
+    # fund contract address + '-' + date
+    id: ID!
+
+    date: BigInt!
+    fund: Fund!
+
+    #总的基金份额
+    totalSupply: BigInt!
+    #当前总的投入本金
+    totalInvestment: BigDecimal!
+    #总的资产
+    totalAssets: BigDecimal!
+
+    # 累计投入值
+    totalDepositedAmount: BigDecimal!
+    # 累计取出值
+    totalWithdrewAmount: BigDecimal!
+
+    # 美元值
+    totalInvestmentUSD: BigDecimal!
+    totalAssetsUSD: BigDecimal!
+    totalDepositedAmountUSD: BigDecimal!
+    totalWithdrewAmountUSD: BigDecimal!
+
+    # 日结算初始价
+    initSettlementPrice: BigDecimal!
+    # 日结算价格
+    dailySettlementPrice: BigDecimal!
+    # 日累计fees
+    dailyTotalFees: BigDecimal!
+    # 累计fees
+    totalFees: BigDecimal!
+    # 待领取的fees
+    totalPendingFees: BigDecimal!
+    # 已经领取的fees
+    totalWithdrewFees: BigDecimal!
+}
+
+type InvestorDayData @entity {
+    # fund address + '-' + investor address + "-" + date
+    id:ID!
+
+    date: BigInt!
+    investor: Investor!
+    fund: Fund!
+
+    # 我的份额
+    share: BigInt!
+    # 当前本金
+    totalInvestment: BigDecimal!
+
+    # 累计投入值
+    totalDepositedAmount: BigDecimal!
+    # 累计取出值
+    totalWithdrewAmount: BigDecimal!
+
+    # 美元值
+    totalInvestmentUSD: BigDecimal!
+    totalDepositedAmountUSD: BigDecimal!
+    totalWithdrewAmountUSD: BigDecimal!
+
+    # 日结算价格
+    dailySettlementPrice: BigDecimal!
+    # 日累计fees
+    dailyTotalFees: BigDecimal!
+    # 累计fees
+    totalFees: BigDecimal!
+    # 待领取的fees
+    totalPendingFees: BigDecimal!
+    # 已经领取的fees
+    totalWithdrewFees: BigDecimal!
+}

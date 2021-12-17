@@ -1,0 +1,16 @@
+{
+  "network": "arbitrum-rinkeby",
+  "blockAmountPerMinute": 20,
+  "ctrlAddress": "0x0a0d195d646cf8cfd983cf40d926ba6d9bb63dc5",
+  "ctrlCreatedBlock": 7524690,
+  "factoryAddress": "0x167de33737344a5ef381fc32358f22282181f0cc",
+  "factoryCreatedBlock": 7524733,
+  "startProcessBlock": 7524733,
+  "hptAddress": "0xd78a2bccefb93e62bb3c59d646d66ade5945dbfc",
+  "wethAddress": "0xb47e6a5f8b33b3f17603c83a0535a9dcd7e32681",
+  "usdcEth03Pool": "0x59fb2d1bd14457ce51d81af0f427d8a3440c4062",
+  "daiAddress": "0x8a6c375ade4b88d6a969cc04dc7d4fc1e92d7e68",
+  "usdcAddress": "0xfda713f127547a92b9d9bd93e961b15d79f15ae9",
+  "usdtAddress": "0xb99d3f87c65b37ecd6ff2ace465a9a7788e6fdd4",
+  "tusdAddress": "0x49921cc1e028bd1a9ebf9f787fbcef50acb4ea66"
+}

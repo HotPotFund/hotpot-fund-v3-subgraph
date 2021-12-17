@@ -1,0 +1,176 @@
+specVersion: 0.0.2
+description: hotpot fund v3 subgraph
+repository: https://api.thegraph.com/subgraphs/name/hotpotfund/hotpot-fund-v3-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Controller
+    network: {{network}}
+    source:
+      address: "{{ctrlAddress}}"
+      abi: Controller
+      startBlock: {{ctrlCreatedBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/controller.ts
+      entities:
+        - Bundle
+        - Fund
+        - FundSummary
+        - HarvestSummary
+        - HarvestTx
+        - Manager
+        - PathPool
+        - Pool
+        - Position
+        - SetHarvestPathTx
+        - Token
+        - Transaction
+        - FundDayData
+        - Investor
+        - InvestorDayData
+      abis:
+        - name: Fund
+          file: ./abis/Fund.json
+        - name: Factory
+          file: ./abis/Factory.json
+        - name: Controller
+          file: ./abis/Controller.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+        - name: UniV3Pool
+          file: ./abis/UniV3Pool.json
+        - name: UniV3Factory
+          file: ./abis/UniV3Factory.json
+      eventHandlers:
+        - event: ChangeVerifiedToken(indexed address,bool)
+          handler: handleChangeVerifiedToken
+        - event: Harvest(indexed address,uint256,uint256)
+          handler: handleHarvest
+        - event: SetHarvestPath(indexed address,bytes)
+          handler: handleSetHarvestPath
+        - event: SetGovernance(indexed address)
+          handler: handleSetGovernance
+        - event: SetMaxSqrtSlippage(uint256)
+          handler: handleSetMaxSqrtSlippage
+        - event: SetMaxPriceImpact(uint256)
+          handler: handleSetMaxPriceImpact
+      blockHandlers:
+        - handler: handleBlock
+  - kind: ethereum/contract
+    name: Factory
+    network: {{network}}
+    source:
+      address: "{{factoryAddress}}"
+      abi: Factory
+      startBlock: {{factoryCreatedBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/factory.ts
+      entities:
+        - Fund
+        - FundSummary
+        - Manager
+      abis:
+        - name: Fund
+          file: ./abis/Fund.json
+        - name: Factory
+          file: ./abis/Factory.json
+        - name: Controller
+          file: ./abis/Controller.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+        - name: UniV3Pool
+          file: ./abis/UniV3Pool.json
+        - name: UniV3Factory
+          file: ./abis/UniV3Factory.json
+      eventHandlers:
+        - event: FundCreated(indexed address,indexed address,indexed address)
+          handler: handleFundCreated
+templates:
+  - kind: ethereum/contract
+    name: Fund
+    network: {{network}}
+    source:
+      abi: Fund
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/fund.ts
+      entities:
+        - AddTx
+        - DepositTx
+        - Fund
+        - FundSummary
+        - InitTx
+        - Investor
+        - InvestorSummary
+        - Manager
+        - MoveTx
+        - Path
+        - PathPool
+        - Pool
+        - Position
+        - SetDeadlineTx
+        - SetPathTx
+        - SubTx
+        - Token
+        - Transaction
+        - WithdrawTx
+        - FundDayData
+        - Investor
+        - InvestorDayData
+      abis:
+        - name: Fund
+          file: ./abis/Fund.json
+        - name: Factory
+          file: ./abis/Factory.json
+        - name: Controller
+          file: ./abis/Controller.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+        - name: UniV3Pool
+          file: ./abis/UniV3Pool.json
+        - name: UniV3Factory
+          file: ./abis/UniV3Factory.json
+        - name: StakingRewards
+          file: ./abis/StakingRewards.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        - event: Deposit(indexed address,uint256,uint256)
+          handler: handleDeposit
+        - event: Withdraw(indexed address,uint256,uint256)
+          handler: handleWithdraw
+        - event: SetDescriptor(bytes)
+          handler: handleSetDescriptor
+        - event: SetDeadline(uint256)
+          handler: handleSetDeadline
+        - event: SetPath(address,bytes)
+          handler: handleSetPath
+        - event: Init(uint256,uint256,uint256)
+          handler: handleInit
+        - event: Add(uint256,uint256,uint256,bool)
+          handler: handleAdd
+        - event: Sub(uint256,uint256,uint256)
+          handler: handleSub
+        - event: Move(uint256,uint256,uint256,uint256)
+          handler: handleMove

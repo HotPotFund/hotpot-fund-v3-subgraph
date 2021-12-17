@@ -1,0 +1,16 @@
+{
+  "network": "arbitrum-one",
+  "blockAmountPerMinute": 20,
+  "ctrlAddress": "0x615d8e5e1344b36a95f6ecd8e6cda020e84dc25b",
+  "ctrlCreatedBlock": 3912204,
+  "factoryAddress": "0x930b5c97483ce350253fd784036412c045880a69",
+  "factoryCreatedBlock": 3912339,
+  "startProcessBlock": 3912339,
+  "hptAddress": "0x93208c801550de0178992ce09bdca4f8d5189969",
+  "wethAddress": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+  "usdcEth03Pool": "0x17c14d2c404d167802b16c450d3c99f88f2c4f4d",
+  "daiAddress": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
+  "usdcAddress": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+  "usdtAddress": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
+  "tusdAddress": ""
+}
