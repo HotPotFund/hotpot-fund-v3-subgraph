@@ -365,11 +365,14 @@ export function handleWithdraw(event: WithdrawEvent): void {
 export function handleSetDescriptor(event: SetDescriptor): void {
     let fundEntity = Fund.load(event.address.toHex()) as Fund;
     fundEntity.descriptor = event.params.descriptor.toHexString();
-    
+
     fundEntity.save();
 }
 
 export function handleSetDeadline(event: SetDeadline): void {
+    let fundEntity = Fund.load(event.address.toHex()) as Fund;
+    fundEntity.deadline = event.params.deadline;
+
     let txId = event.transaction.hash.toHex();
     let transaction = (Transaction.load(txId) || new Transaction(txId)) as Transaction;
     let txSetDeadline = (transaction.setPaths || []) as Array<string>;
@@ -383,6 +386,7 @@ export function handleSetDeadline(event: SetDeadline): void {
     setDeadlineTx.fund = event.address.toHex();
     setDeadlineTx.deadline = event.params.deadline;
 
+    fundEntity.save();
     setDeadlineTx.save();
     transaction.save();
 }
@@ -467,11 +471,9 @@ export function handleInit(event: Init): void {
     initTx.amountUSD = fundTokenPriceUSD.times(initTx.amount);
     initTx.position = positionId;
 
-    //先计算fees
-    updateFees(event.block, fundEntity, fundTokenEntity, fund, fundTokenPriceUSD);
-
     let pool = Pool.load(poolId);
     if (pool === null) {
+        fundEntity.poolsLength = fundEntity.poolsLength.plus(ONE_BI);
         pool = new Pool(poolId);
         pool.fund = initTx.fund;
         pool.address = poolAddress;
@@ -497,13 +499,13 @@ export function handleInit(event: Init): void {
     //有可能是0，用于结算一段时间内的fees收益
     position.feeGrowthInside0LastX128 = uniV3Position.value1;
     position.feeGrowthInside1LastX128 = uniV3Position.value2;
-    position.assetAmount = convertTokenToDecimal(fund.assetsOfPosition(event.params.poolIndex, event.params.positionIndex), fundTokenEntity.decimals);
-    position.assetAmountUSD = fundTokenPriceUSD.times(pool.assetAmount);
-    position.assetShare = fundEntity.totalAssets.gt(ZERO_BD) ? position.assetAmount.div(fundEntity.totalAssets) : ZERO_BD;
+    position.assetAmount = ZERO_BD;
+    position.assetAmountUSD = ZERO_BD;
+    position.assetShare = ZERO_BD;
     position.amount0 = ZERO_BD;
     position.amount1 = ZERO_BD;
-    position.amount = position.assetAmount;
-    position.amountUSD = position.assetAmountUSD;
+    position.amount = ZERO_BD;
+    position.amountUSD = ZERO_BD;
     position.fees0 = ZERO_BD;
     position.fees1 = ZERO_BD;
     position.fees = ZERO_BD;
@@ -514,6 +516,9 @@ export function handleInit(event: Init): void {
     initTx.save();
     transaction.save();
     fundEntity.save();
+
+    //计算fees
+    updateFees(event.block, fundEntity, fundTokenEntity, fund, fundTokenPriceUSD);
 }
 
 export function handleAdd(event: Add): void {

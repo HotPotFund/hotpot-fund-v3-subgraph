@@ -7,9 +7,11 @@
     "prepare:mainnet": "mustache config/mainnet.json src/helpers.template.ts > src/helpers.ts && mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml",
     "prepare:arbitrum": "mustache config/arbOne.json src/helpers.template.ts > src/helpers.ts && mustache config/arbOne.json subgraph.template.yaml > subgraph.yaml",
     "prepare:arbRinkeby": "mustache config/arbRinkeby.json src/helpers.template.ts > src/helpers.ts && mustache config/arbRinkeby.json subgraph.template.yaml > subgraph.yaml",
+    "prepare:ropsten": "mustache config/ropsten.json src/helpers.template.ts > src/helpers.ts && mustache config/ropsten.json subgraph.template.yaml > subgraph.yaml",
     "deploy:mainnet": "graph deploy HotPotFund/hotpot-fund-v3 --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/",
     "deploy:arbitrum": "graph deploy HotPotFund/hotpot-fund-v3-arbitrum --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/",
     "deploy:arbRinkeby": "graph deploy HotPotFund/hotpotfund-v3-rinkeby --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/",
+    "deploy:ropsten": "graph deploy HotPotFund/hotpot-fund-v2-plus --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/",
     "create:local": "graph create --node http://localhost:8020/ HotPotFund/hotpot-fund-v3",
     "remove:local": "graph remove --node http://localhost:8020/ HotPotFund/hotpot-fund-v3",
     "deploy:local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 HotPotFund/hotpot-fund-v3"
