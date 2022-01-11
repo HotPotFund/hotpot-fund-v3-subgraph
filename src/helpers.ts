@@ -317,7 +317,7 @@ export class FeesOfPosition {
     feeGrowthInside1X128: BigInt;
 }
 
-export function calFeesOfPosition(params: CalFeesParams, position: Position, uniPool: UniV3Pool, uniV3Position: UniV3Pool__positionsResult): FeesOfPosition {
+export function calDeltaFeesOfPosition(params: CalFeesParams, position: Position, uniPool: UniV3Pool, uniV3Position: UniV3Pool__positionsResult): FeesOfPosition {
     let feeGrowthInside0X128 = ZERO_BI;
     let feeGrowthInside1X128 = ZERO_BI;
     if (uniV3Position.value0.equals(ZERO_BI)) {

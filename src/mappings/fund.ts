@@ -70,7 +70,7 @@ export function handleTransfer(event: Transfer): void {
     let fund = FundContract.bind(event.address);
 
     let fundTokenPriceUSD = getTokenPriceUSD(fundTokenEntity);
-    let deltaFees = updateFundPools(fundEntity, fundTokenEntity, fund, fundTokenPriceUSD);
+    let deltaFees = updateFundPools(fundEntity, fundTokenEntity, fund, -1, -1, fundTokenPriceUSD);
     let totalShare = convertTokenToDecimal(fundEntity.totalSupply, fundEntity.decimals);
     let sharePrice = totalShare.gt(ZERO_BD) ? deltaFees.div(totalShare) : ZERO_BD;
     let lastedSettlementPrice = fundEntity.lastedSettlementPrice.plus(sharePrice);
@@ -107,15 +107,17 @@ export function handleTransfer(event: Transfer): void {
         toInvestor.stakingShare = toInvestor.stakingShare.minus(event.params.value);
     updateInvestorDayData(event, toInvestor, toInvestorLastedShare);
 
+    //fund fees
     fundEntity.lastedSettlementPrice = lastedSettlementPrice;
     fundEntity.totalFees = fundEntity.totalFees.plus(deltaFees);
     fundEntity.totalPendingFees = fundEntity.totalPendingFees.plus(deltaFees).minus(withdrawFees);
     fundEntity.totalWithdrewFees = fundEntity.totalFees.minus(fundEntity.totalPendingFees);
+    //fundSummary fees
     let fundSummary = FundSummary.load("1") as FundSummary;
     fundSummary.totalFees = fundSummary.totalFees.plus(deltaFees);
     fundSummary.totalPendingFees = fundSummary.totalPendingFees.plus(deltaFees).minus(withdrawFees);
     fundSummary.totalWithdrewFees = fundSummary.totalFees.minus(fundSummary.totalPendingFees);
-
+    //manager fees
     let manager = Manager.load(fundEntity.manager) as Manager;
     manager.totalFees = manager.totalFees.plus(deltaFees);
     manager.totalPendingFees = manager.totalPendingFees.plus(deltaFees).minus(withdrawFees);
@@ -204,7 +206,7 @@ export function handleDeposit(event: DepositEvent): void {
     fundEntity.totalDepositedAmountUSD = fundEntity.totalDepositedAmountUSD.plus(depositTx.amountUSD);
     // fundEntity.totalWithdrewAmount = fundEntity.totalWithdrewAmount;
 
-    let deltaFees = updateFundPools(fundEntity, fundTokenEntity, fund, fundTokenPriceUSD);
+    let deltaFees = updateFundPools(fundEntity, fundTokenEntity, fund, -1, -1, fundTokenPriceUSD);
     let totalShare = convertTokenToDecimal(fundEntity.totalSupply.minus(event.params.share), fundEntity.decimals);
     let sharePrice = totalShare.gt(ZERO_BD) ? deltaFees.div(totalShare) : ZERO_BD;
     let lastedSettlementPrice = fundEntity.lastedSettlementPrice.plus(sharePrice);
@@ -284,7 +286,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
     // fundEntity.totalDepositedAmount = fundEntity.totalDepositedAmount;
     fundEntity.totalWithdrewAmount = fundEntity.totalWithdrewAmount.plus(withdrawTx.amount);
 
-    let deltaFees = updateFundPools(fundEntity, fundTokenEntity, fund, fundTokenPriceUSD);
+    let deltaFees = updateFundPools(fundEntity, fundTokenEntity, fund, -1, -1, fundTokenPriceUSD);
     let totalShare = convertTokenToDecimal(fundEntity.totalSupply.plus(event.params.share), fundEntity.decimals);
     let deltaPerSharePrice = totalShare.gt(ZERO_BD) ? deltaFees.div(totalShare) : ZERO_BD;
     let lastedSettlementPrice = fundEntity.lastedSettlementPrice.plus(deltaPerSharePrice);
@@ -515,10 +517,10 @@ export function handleInit(event: Init): void {
     position.save();
     initTx.save();
     transaction.save();
-    fundEntity.save();
 
     //计算fees
-    updateFees(event.block, fundEntity, fundTokenEntity, fund, fundTokenPriceUSD);
+    updateFees(event.block, fundEntity, fundTokenEntity, fund, event.params.poolIndex.toI32(), event.params.positionIndex.toI32(), fundTokenPriceUSD);
+    fundEntity.save();
 }
 
 export function handleAdd(event: Add): void {
@@ -545,7 +547,7 @@ export function handleAdd(event: Add): void {
     addTx.collect = event.params.collect;
     addTx.position = event.address.toHex() + "-" + addTx.poolIndex.toString() + "-" + addTx.positionIndex.toString();
 
-    updateFees(event.block, fundEntity, fundTokenEntity, fund, fundTokenPriceUSD);
+    updateFees(event.block, fundEntity, fundTokenEntity, fund, event.params.poolIndex.toI32(), event.params.positionIndex.toI32(), fundTokenPriceUSD);
 
     addTx.save();
     transaction.save();
@@ -577,7 +579,7 @@ export function handleSub(event: Sub): void {
         .assetAmount.minus(convertTokenToDecimal(fund.assetsOfPosition(subTx.poolIndex, subTx.positionIndex), fundTokenEntity.decimals));
     if (subTx.amount.lt(ZERO_BD)) subTx.amount = ZERO_BD.minus(subTx.amount);
     subTx.amountUSD = fundTokenPriceUSD.times(subTx.amount);
-    updateFees(event.block, fundEntity, fundTokenEntity, fund, fundTokenPriceUSD);
+    updateFees(event.block, fundEntity, fundTokenEntity, fund, event.params.poolIndex.toI32(), event.params.positionIndex.toI32(), fundTokenPriceUSD);
 
     subTx.save();
     transaction.save();
@@ -611,7 +613,8 @@ export function handleMove(event: Move): void {
         .assetAmount.minus(convertTokenToDecimal(fund.assetsOfPosition(movesTx.poolIndex, movesTx.subIndex), fundTokenEntity.decimals));
     if (movesTx.amount.lt(ZERO_BD)) movesTx.amount = ZERO_BD.minus(movesTx.amount);
     movesTx.amountUSD = fundTokenPriceUSD.times(movesTx.amount);
-    updateFees(event.block, fundEntity, fundTokenEntity, fund, fundTokenPriceUSD);
+    updateFees(event.block, fundEntity, fundTokenEntity, fund, event.params.poolIndex.toI32(), event.params.subIndex.toI32(), fundTokenPriceUSD);
+    updateFees(event.block, fundEntity, fundTokenEntity, fund, event.params.poolIndex.toI32(), event.params.addIndex.toI32(), fundTokenPriceUSD);
 
     movesTx.save();
     transaction.save();
