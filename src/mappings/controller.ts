@@ -331,6 +331,7 @@ export function handleBlock(block: ethereum.Block): void {
     let bundle: Bundle | null;
     let DayDuration = BigInt.fromI32(86400);
     let fiveMinute = BigInt.fromI32(86100);// 剩余5分钟的时间点
+    if (block.gasUsed == ZERO_BI) return;
     // 如果当前时间是当日的最后5分钟内: 86400 - 86100 = 300
     if (block.timestamp.mod(DayDuration).gt(fiveMinute)) {
         bundle = Bundle.load("1");

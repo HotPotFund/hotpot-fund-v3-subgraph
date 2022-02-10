@@ -40,7 +40,7 @@ import {
     FixedPoint_Q128_BD,
     getPositionKey,
     getTokenPriceUSD,
-    HPT_ADDRESS,
+    HPT_ADDRESS, ONE_BD,
     ONE_BI, syncTxStatusData,
     uniV3Factory,
     ZERO_BD,
@@ -312,9 +312,12 @@ export function handleWithdraw(event: WithdrawEvent): void {
     //计算协议费用
     let protocolFees = ZERO_BD;
     let protocolFeesUSD = ZERO_BD;
-    if (withdrawTx.amount.gt(withdrawInvestment)) {
-        //(总提取-本金)/0.8*0.2 = fees
-        protocolFees = withdrawTx.amount.minus(withdrawInvestment).div(BigDecimal.fromString('4'));
+    let baseAmount = withdrawInvestment.plus(withdrawInvestment.times(fundEntity.baseLine));
+    let protocolFeesRatio = fundEntity.managerFee.plus(BigDecimal.fromString("0.05"));
+    if (withdrawTx.amount.gt(baseAmount)) {
+        //提取收益 = 总提取 - 基线值
+        //protocolFees = (总提取-基线值) / (1-protocolFeesRatio) * (protocolFeesRatio)
+        protocolFees = withdrawTx.amount.minus(withdrawInvestment).times(protocolFeesRatio).div(ONE_BD.minus(protocolFeesRatio));
         protocolFeesUSD = protocolFees.times(fundTokenPriceUSD);
     }
 
