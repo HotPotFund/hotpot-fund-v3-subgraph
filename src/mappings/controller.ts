@@ -107,7 +107,8 @@ export function updateFundPools(fundEntity: Fund,
             const positionOfUniV3 = uniV3Pool.positions(position.positionKey);
             const liquidity = positionOfUniV3.value0;
             const results = calDeltaFeesOfPosition(params, position, uniV3Pool, positionOfUniV3);
-            deltaFees = deltaFees.plus(results.fees);
+            if (results.isFail) continue;// 异常
+            deltaFees = deltaFees.plus(results.fees as BigDecimal);
             position.feeGrowthInside0LastX128 = results.feeGrowthInside0X128;
             position.feeGrowthInside1LastX128 = results.feeGrowthInside1X128;
             // 如果当前头寸LP有变法

@@ -1,5 +1,11 @@
-specVersion: 0.0.2
+specVersion: 0.0.4
 description: hotpot fund v3 subgraph
+features:
+  - nonFatalErrors
+  - grafting
+graft:
+  base: QmRyQHy5hzpVDjYXUSjkFZYBL7s56Cc2ibp6pALkRAPPfj
+  block: 15266974
 repository: https://api.thegraph.com/subgraphs/name/hotpotfund/hotpot-fund-v3-subgraph
 schema:
   file: ./schema.graphql
@@ -13,7 +19,7 @@ dataSources:
       startBlock: 13808441
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       file: ./src/mappings/controller.ts
       entities:
@@ -73,7 +79,7 @@ dataSources:
       startBlock: 13808694
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       file: ./src/mappings/factory.ts
       entities:
@@ -108,7 +114,7 @@ templates:
       abi: Fund
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       file: ./src/mappings/fund.ts
       entities:

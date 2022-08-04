@@ -19,7 +19,7 @@ export let BI_18 = BigInt.fromI32(18);
 export let BI_6 = BigInt.fromI32(6);
 export let BI_256_MAX = BigInt.fromI32(1).leftShift(255).minus(ONE_BI).leftShift(1).plus(ONE_BI);
 
-export let START_PROCESS_BLOCK = 13808694;
+export let START_PROCESS_BLOCK = 15270523;
 export let BLOCK_AMOUNT_PER_MINUTE = 5;
 export const HPT_ADDRESS = '0x615d8e5e1344b36a95f6ecd8e6cda020e84dc25b';
 export const WETH_ADDRESS = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2';
@@ -257,14 +257,19 @@ class FeeGrowthInsideParams {
 class FeeGrowthInsides {
     feeGrowthInside0X128: BigInt;
     feeGrowthInside1X128: BigInt;
+    isFail: boolean;
 }
 
 export function getFeeGrowthInside(params: FeeGrowthInsideParams): FeeGrowthInsides {
-    let feeGrowthInside0X128: BigInt;
-    let feeGrowthInside1X128: BigInt;
+    let feeGrowthInside0X128: BigInt = ZERO_BI;
+    let feeGrowthInside1X128: BigInt = ZERO_BI;
 
     // calculate fee growth below
-    let lower = params.pool.ticks(params.tickLower);
+    let ticksResult = params.pool.try_ticks(params.tickLower);
+    if (ticksResult.reverted) {
+        return {feeGrowthInside0X128, feeGrowthInside1X128, isFail: true} as FeeGrowthInsides;
+    }
+    let lower = ticksResult.value;
     let feeGrowthBelow0X128: BigInt;
     let feeGrowthBelow1X128: BigInt;
     if (params.tickCurrent >= params.tickLower) {
@@ -276,7 +281,11 @@ export function getFeeGrowthInside(params: FeeGrowthInsideParams): FeeGrowthInsi
     }
 
     // calculate fee growth above
-    let upper = params.pool.ticks(params.tickUpper);
+    ticksResult = params.pool.try_ticks(params.tickUpper);
+    if (ticksResult.reverted) {
+        return {feeGrowthInside0X128, feeGrowthInside1X128, isFail: true} as FeeGrowthInsides;
+    }
+    let upper = ticksResult.value;
     let feeGrowthAbove0X128: BigInt;
     let feeGrowthAbove1X128: BigInt;
     if (params.tickCurrent < params.tickUpper) {
@@ -295,7 +304,7 @@ export function getFeeGrowthInside(params: FeeGrowthInsideParams): FeeGrowthInsi
     if (feeGrowthInside1X128.lt(ZERO_BI)) {
         feeGrowthInside1X128 = BI_256_MAX.plus(feeGrowthInside1X128).plus(ONE_BI);
     }
-    return {feeGrowthInside0X128, feeGrowthInside1X128} as FeeGrowthInsides;
+    return {feeGrowthInside0X128, feeGrowthInside1X128, isFail: false} as FeeGrowthInsides;
 }
 
 export class CalFeesParams {
@@ -315,6 +324,7 @@ export class FeesOfPosition {
     fees: BigDecimal;
     feeGrowthInside0X128: BigInt;
     feeGrowthInside1X128: BigInt;
+    isFail: boolean;
 }
 
 export function calDeltaFeesOfPosition(params: CalFeesParams, position: Position, uniPool: UniV3Pool, uniV3Position: UniV3Pool__positionsResult): FeesOfPosition {
@@ -333,6 +343,7 @@ export function calDeltaFeesOfPosition(params: CalFeesParams, position: Position
             feeGrowthGlobal0X128: params.feeGrowthGlobal0X128,
             feeGrowthGlobal1X128: params.feeGrowthGlobal1X128
         });
+        if (feeGrowthInside.isFail) return {fees: ZERO_BD, feeGrowthInside0X128, feeGrowthInside1X128, isFail: true};
         feeGrowthInside0X128 = feeGrowthInside.feeGrowthInside0X128;
         feeGrowthInside1X128 = feeGrowthInside.feeGrowthInside1X128;
     }
@@ -352,7 +363,7 @@ export function calDeltaFeesOfPosition(params: CalFeesParams, position: Position
 
     let feesUSD = amount0.times(params.token0PriceUSD).plus(amount1.times(params.token1PriceUSD));
     // let fees = params.fundTokenPriceUSD.gt(ZERO_BD) ? feesUSD.div(params.fundTokenPriceUSD) : ZERO_BD;
-    return {fees: feesUSD, feeGrowthInside0X128, feeGrowthInside1X128}
+    return {fees: feesUSD, feeGrowthInside0X128, feeGrowthInside1X128, isFail: false}
 }
 
 export class UniV3Position {
