@@ -329,22 +329,41 @@ export function updateFees(block: ethereum.Block,
 }
 
 export function handleBlock(block: ethereum.Block): void {
+    if (block.gasUsed == ZERO_BI) return;
     let bundle: Bundle | null;
     let DayDuration = BigInt.fromI32(86400);
     let fiveMinute = BigInt.fromI32(86100);// 剩余5分钟的时间点
-    if (block.gasUsed == ZERO_BI) return;
-    // 如果当前时间是当日的最后5分钟内: 86400 - 86100 = 300
-    if (block.timestamp.mod(DayDuration).gt(fiveMinute)) {
-        bundle = Bundle.load("1");
-        // 之前已经在5分钟内更新过了, 就不用再更新了
-        if (bundle != null && bundle.timestamp.mod(DayDuration).gt(fiveMinute)) return;
-    } else {
-        //old data 60*60s处理一次
-        if (block.number.lt(BigInt.fromI32(START_PROCESS_BLOCK)) && block.number.mod(BigInt.fromI32(60 * BLOCK_AMOUNT_PER_MINUTE))
-            .notEqual(ZERO_BI)) return;
-        //For performance, every 5*5 blocks are processed for about 5*60s
-        if (block.number.mod(BigInt.fromI32(5 * BLOCK_AMOUNT_PER_MINUTE)).notEqual(ZERO_BI)) return;
+    let tenMinute = BigInt.fromI32(85800);// 剩余10分钟的时间点
+    // // 如果当前时间是当日的最后5分钟内: 86400 - 86100 = 300
+    // if (block.timestamp.mod(DayDuration).gt(fiveMinute)) {
+    //     // 之前已经在5分钟内更新过了, 就不用再更新了
+    //     if (bundle != null && bundle.timestamp.mod(DayDuration).gt(fiveMinute)) return;
+    // }
+    // else {
+    //     // old data 60*60s处理一次
+    //     if (block.number.lt(BigInt.fromI32(START_PROCESS_BLOCK))
+    //         && block.number.mod(BigInt.fromI32(60 * BLOCK_AMOUNT_PER_MINUTE)).notEqual(ZERO_BI)) return;
+    //     // For performance, every 5*5 blocks are processed for about 5*60s
+    //     if (block.number.mod(BigInt.fromI32(5 * BLOCK_AMOUNT_PER_MINUTE)).notEqual(ZERO_BI)) return;
+    // }
+
+    // old data 如果当前时间是当日的最后10分钟内（86400 - 85800 = 600 ）才更新历史数据
+    if (block.number.lt(BigInt.fromI32(START_PROCESS_BLOCK))) {
+        // 还没到每天的最后10分钟内
+        if (!block.timestamp.mod(DayDuration).gt(tenMinute)) return;
     }
+    // bundle = Bundle.load(Bytes.fromUTF8("1"));
+    bundle = Bundle.load("1");
+    // 至少间隔5minute才更新，以控制更新频率
+    if (bundle != null && block.timestamp.minus(bundle.timestamp).lt(BigInt.fromI32(300))) return;
+
+    // // old data 60*60s处理一次
+    // if (block.number.lt(BigInt.fromI32(START_PROCESS_BLOCK))) {
+    //     if (bundle != null && block.timestamp.minus(bundle.timestamp).lt(BigInt.fromI32(3600))) return;
+    // } else {
+    //     // 至少间隔4m57s才更新，以控制更新频率
+    //     if (bundle != null && block.timestamp.minus(bundle.timestamp).lt(BigInt.fromI32(297))) return;
+    // }
 
     let fundSummary = FundSummary.load("1");
     if (fundSummary === null) return;
@@ -360,6 +379,7 @@ export function handleBlock(block: ethereum.Block): void {
         totalAssetsUSD = totalAssetsUSD.plus(fundEntity.totalAssetsUSD);
         fundEntity.save();
     }
+    // bundle = (bundle || new Bundle(Bytes.fromUTF8("1"))) as Bundle;
     bundle = (bundle || new Bundle("1")) as Bundle;
     bundle.ethPriceUSD = getTokenPriceUSD(Token.load(WETH_ADDRESS));
     bundle.timestamp = block.timestamp;

@@ -67,11 +67,17 @@ function getEthPriceInUSD(): BigDecimal {
 }
 
 export function getAvailableUniV3Pool(tokenA: Address, tokenB: Address): Address {
-    let poolAddr = uniV3Factory.getPool(tokenA, tokenB, 500);
-    if (poolAddr.toHex() == ADDRESS_ZERO)
-        poolAddr = uniV3Factory.getPool(tokenA, tokenB, 3000);
-    if (poolAddr.toHex() == ADDRESS_ZERO)
-        poolAddr = uniV3Factory.getPool(tokenA, tokenB, 10000);
+    let poolAddr = Address.fromString(ADDRESS_ZERO);
+    let result = uniV3Factory.try_getPool(tokenA, tokenB, 500);
+    if (!result.reverted) poolAddr = result.value;
+    if (poolAddr.toHex() == ADDRESS_ZERO) {
+        result = uniV3Factory.try_getPool(tokenA, tokenB, 3000);
+        if (!result.reverted) poolAddr = result.value;
+    }
+    if (poolAddr.toHex() == ADDRESS_ZERO) {
+        result = uniV3Factory.try_getPool(tokenA, tokenB, 10000);
+        if (!result.reverted) poolAddr = result.value;
+    }
     return poolAddr;
 }
 

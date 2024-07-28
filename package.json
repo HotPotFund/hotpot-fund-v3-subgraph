@@ -11,6 +11,7 @@
     "prepare:arbRinkeby": "mustache config/arbRinkeby.json src/helpers.template.ts > src/helpers.ts && mustache config/arbRinkeby.json subgraph.template.yaml > subgraph.yaml",
     "prepare:ropsten": "mustache config/ropsten.json src/helpers.template.ts > src/helpers.ts && mustache config/ropsten.json subgraph.template.yaml > subgraph.yaml",
     "deploy:mainnet": "graph deploy HotPotFund/hotpot-fund-v3 --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/",
+    "deploy:mainnet_new": "graph deploy --product hosted-service hotpotfund/hotpot-fund-v3",
     "deploy:arbitrum": "graph deploy HotPotFund/hotpot-fund-v3-arbitrum --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/",
     "deploy:arbOne": "graph deploy HotPotFund/hotpot-fund-v3-arbitrum-one --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/",
     "deploy:polygon": "graph deploy HotPotFund/hotpot-fund-v3-polygon --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/",
@@ -20,10 +21,12 @@
     "remove:local": "graph remove --node http://localhost:8020/ HotPotFund/hotpot-fund-v3",
     "deploy:local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 HotPotFund/hotpot-fund-v3"
   },
-  "dependencies": {},
-  "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.33.0",
-    "@graphprotocol/graph-ts": "^0.27.0",
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.79.0",
+    "@graphprotocol/graph-ts": "0.32.0",
     "mustache": "^3.1.0"
+  },
+  "devDependencies": {
+    "matchstick-as": "0.5.0"
   }
 }

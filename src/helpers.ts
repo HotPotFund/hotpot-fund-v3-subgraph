@@ -19,7 +19,7 @@ export let BI_18 = BigInt.fromI32(18);
 export let BI_6 = BigInt.fromI32(6);
 export let BI_256_MAX = BigInt.fromI32(1).leftShift(255).minus(ONE_BI).leftShift(1).plus(ONE_BI);
 
-export let START_PROCESS_BLOCK = 15270523;
+export let START_PROCESS_BLOCK = 20403101;
 export let BLOCK_AMOUNT_PER_MINUTE = 5;
 export const HPT_ADDRESS = '0x615d8e5e1344b36a95f6ecd8e6cda020e84dc25b';
 export const WETH_ADDRESS = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2';
@@ -67,11 +67,17 @@ function getEthPriceInUSD(): BigDecimal {
 }
 
 export function getAvailableUniV3Pool(tokenA: Address, tokenB: Address): Address {
-    let poolAddr = uniV3Factory.getPool(tokenA, tokenB, 500);
-    if (poolAddr.toHex() == ADDRESS_ZERO)
-        poolAddr = uniV3Factory.getPool(tokenA, tokenB, 3000);
-    if (poolAddr.toHex() == ADDRESS_ZERO)
-        poolAddr = uniV3Factory.getPool(tokenA, tokenB, 10000);
+    let poolAddr = Address.fromString(ADDRESS_ZERO);
+    let result = uniV3Factory.try_getPool(tokenA, tokenB, 500);
+    if (!result.reverted) poolAddr = result.value;
+    if (poolAddr.toHex() == ADDRESS_ZERO) {
+        result = uniV3Factory.try_getPool(tokenA, tokenB, 3000);
+        if (!result.reverted) poolAddr = result.value;
+    }
+    if (poolAddr.toHex() == ADDRESS_ZERO) {
+        result = uniV3Factory.try_getPool(tokenA, tokenB, 10000);
+        if (!result.reverted) poolAddr = result.value;
+    }
     return poolAddr;
 }
 

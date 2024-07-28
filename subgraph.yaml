@@ -1,12 +1,14 @@
-specVersion: 0.0.4
+specVersion: 1.2.0
 description: hotpot fund v3 subgraph
 features:
   - nonFatalErrors
   - grafting
 graft:
-  base: QmRyQHy5hzpVDjYXUSjkFZYBL7s56Cc2ibp6pALkRAPPfj
-  block: 15266974
+  base: "QmWLCod2Cddti2icLz6JLUeFwPeSgqvifPpdpViVKXp3Fr"
+  block: 20377123
 repository: https://api.thegraph.com/subgraphs/name/hotpotfund/hotpot-fund-v3-subgraph
+indexerHints:
+  prune: auto
 schema:
   file: ./schema.graphql
 dataSources:
@@ -19,7 +21,7 @@ dataSources:
       startBlock: 13808441
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/controller.ts
       entities:
@@ -70,6 +72,9 @@ dataSources:
           handler: handleSetMaxPriceImpact
       blockHandlers:
         - handler: handleBlock
+          filter:
+            kind: polling
+            every: 40
   - kind: ethereum/contract
     name: Factory
     network: mainnet
@@ -79,7 +84,7 @@ dataSources:
       startBlock: 13808694
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/factory.ts
       entities:
@@ -114,7 +119,7 @@ templates:
       abi: Fund
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/fund.ts
       entities:

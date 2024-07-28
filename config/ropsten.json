@@ -6,6 +6,8 @@
   "factoryAddress": "0x87d5d38216FF405eEc9D055A313505F2b47951DC",
   "factoryCreatedBlock": 11634540,
   "startProcessBlock": 11634540,
+  "graftBase": "QmfSrzVtuBDPrDY47QxGGWneaD8337vKAoGAWsKm3qABzg",
+  "graftBlock": 18914848,
   "hptAddress": "0x352e792fb99f20adeccb20aff0695e76349a2925",
   "wethAddress": "0xc778417e063141139fce010982780140aa0cd5ab",
   "usdcEth03Pool": "0x35a23a79310d3cabd81bdf0df75f39afb51560f5",

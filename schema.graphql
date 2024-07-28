@@ -21,7 +21,7 @@ type Token @entity {
 }
 
 # 所有基金汇总数据
-type FundSummary @entity{
+type FundSummary @entity {
     id: ID!
     length: BigInt!
     funds: [Fund!]
@@ -143,7 +143,6 @@ type Manager @entity {
     totalWithdrewFees: BigDecimal!
 }
 
-
 type InvestorSummary @entity {
     #investor address
     id: ID!
@@ -259,7 +258,7 @@ type HarvestSummary @entity {
     totalAmountUSD: BigDecimal!
 }
 
-type Transaction @entity {
+type Transaction @entity(immutable: true) {
     id: ID! # txn hash
     fund: Fund
 
@@ -284,7 +283,7 @@ type Transaction @entity {
     harvests: [HarvestTx!]
 }
 
-type SetHarvestPathTx @entity {
+type SetHarvestPathTx @entity(immutable: true) {
     # transaction hash + "-" + index in Transaction array
     id: ID!
     transaction: Transaction!
@@ -295,7 +294,7 @@ type SetHarvestPathTx @entity {
     pathPools: [PathPool!]
 }
 
-type HarvestTx @entity {
+type HarvestTx @entity(immutable: true) {
     # transaction hash + "-" + index in Transaction array
     id: ID!
     transaction: Transaction!
@@ -306,7 +305,7 @@ type HarvestTx @entity {
     amountUSD: BigDecimal!
 }
 
-type SetDeadlineTx @entity {
+type SetDeadlineTx @entity(immutable: true) {
     # transaction hash + "-" + index in Transaction array
     id: ID!
     transaction: Transaction!
@@ -315,7 +314,7 @@ type SetDeadlineTx @entity {
     deadline: BigInt!
 }
 
-type SetPathTx @entity {
+type SetPathTx @entity(immutable: true) {
     # transaction hash + "-" + index in Transaction array
     id: ID!
     transaction: Transaction!
@@ -325,7 +324,7 @@ type SetPathTx @entity {
     path: Path!
 }
 
-type InitTx @entity {
+type InitTx @entity(immutable: true) {
     # transaction hash + "-" + index in Transaction array
     id: ID!
     transaction: Transaction!
@@ -342,7 +341,7 @@ type InitTx @entity {
     position: Position!
 }
 
-type AddTx @entity {
+type AddTx @entity(immutable: true) {
     # transaction hash + "-" + index in Transaction array
     id: ID!
     transaction: Transaction!
@@ -357,7 +356,7 @@ type AddTx @entity {
     position: Position!
 }
 
-type SubTx @entity {
+type SubTx @entity(immutable: true) {
     # transaction hash + "-" + index in Transaction array
     id: ID!
     transaction: Transaction!
@@ -373,7 +372,7 @@ type SubTx @entity {
     position: Position!
 }
 
-type MoveTx @entity {
+type MoveTx @entity(immutable: true) {
     # transaction hash + "-" + index in mints Transaction array
     id: ID!
     transaction: Transaction!
@@ -391,7 +390,7 @@ type MoveTx @entity {
     addPosition: Position!
 }
 
-type DepositTx @entity {
+type DepositTx @entity(immutable: true) {
     # transaction hash + "-" + index in mints Transaction array
     id: ID!
     transaction: Transaction!
@@ -405,7 +404,7 @@ type DepositTx @entity {
     investor: Investor!
 }
 
-type WithdrawTx @entity {
+type WithdrawTx @entity(immutable: true) {
     # transaction hash + "-" + index in mints Transaction array
     id: ID!
     transaction: Transaction!
@@ -422,7 +421,7 @@ type WithdrawTx @entity {
 }
 
 
-type FundDayData @entity{
+type FundDayData @entity {
     # fund contract address + '-' + date
     id: ID!
 
